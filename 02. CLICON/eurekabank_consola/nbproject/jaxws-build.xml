@@ -18,7 +18,7 @@
     </target>
     <target name="wsimport-client-MovimientoController" depends="wsimport-init">
         <mkdir dir="${build.generated.dir}/jax-wsCache/MovimientoController"/>
-        <property name="wsdl-MovimientoController" location="xml-resources/web-service-references/MovimientoController/wsdl/10.40.16.190_8094/ec.edu.monster.controlador/MovimientoController.svc.wsdl"/>
+        <property name="wsdl-MovimientoController" location="xml-resources/web-service-references/MovimientoController/wsdl/localhost_8094/ec.edu.monster.controlador/MovimientoController.svc.wsdl"/>
         <wsimport sourcedestdir="${build.generated.dir}/jax-wsCache/MovimientoController" destdir="${build.generated.dir}/jax-wsCache/MovimientoController" wsdl="${wsdl-MovimientoController}" catalog="catalog.xml" encoding="${source.encoding}" extension="true" verbose="true" fork="false" wsdlLocation="http://10.40.16.190:8094/ec.edu.monster.controlador/MovimientoController.svc?wsdl" xnocompile="true" xendorsed="true">
             <depends file="${wsdl-MovimientoController}"/>
             <produces dir="${build.generated.dir}/jax-wsCache/MovimientoController"/>
@@ -33,5 +33,22 @@
         <delete dir="${build.generated.dir}/jax-wsCache/MovimientoController"/>
         <delete dir="${build.generated.sources.dir}/jax-ws/org/tempuri"/>
     </target>
-    <target name="wsimport-client-generate" depends="wsimport-client-MovimientoController"/>
+    <target name="wsimport-client-MovimientoController_1" depends="wsimport-init">
+        <mkdir dir="${build.generated.dir}/jax-wsCache/MovimientoController_1"/>
+        <property name="wsdl-MovimientoController_1" location="xml-resources/web-service-references/MovimientoController_1/wsdl/localhost_8094/ec.edu.monster.controlador/MovimientoController.svc.wsdl"/>
+        <wsimport sourcedestdir="${build.generated.dir}/jax-wsCache/MovimientoController_1" destdir="${build.generated.dir}/jax-wsCache/MovimientoController_1" wsdl="${wsdl-MovimientoController_1}" catalog="catalog.xml" encoding="${source.encoding}" extension="true" verbose="true" fork="false" wsdlLocation="http://localhost:8094/ec.edu.monster.controlador/MovimientoController.svc?wsdl" xnocompile="true" xendorsed="true">
+            <depends file="${wsdl-MovimientoController_1}"/>
+            <produces dir="${build.generated.dir}/jax-wsCache/MovimientoController_1"/>
+        </wsimport>
+        <copy todir="${build.generated.sources.dir}/jax-ws">
+            <fileset dir="${build.generated.dir}/jax-wsCache/MovimientoController_1">
+                <include name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+    <target name="wsimport-client-clean-MovimientoController_1" depends="-init-project">
+        <delete dir="${build.generated.dir}/jax-wsCache/MovimientoController_1"/>
+        <delete dir="${build.generated.sources.dir}/jax-ws/org/tempuri"/>
+    </target>
+    <target name="wsimport-client-generate" depends="wsimport-client-MovimientoController, wsimport-client-MovimientoController_1"/>
 </project>

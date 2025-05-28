@@ -1,47 +1,44 @@
+// controllers/CuentaController.js
 import { XMLParser } from 'fast-xml-parser';
 
-const endpoint = 'http://192.168.18.158:8094/ec.edu.monster.controlador/MovimientoController.svc?wsdl';
+const endpoint = 'http://192.168.1.15:8094/ec.edu.monster.controlador/MovimientoController.svc';
+const soapAction = 'http://tempuri.org/IMovimientoController/ObtenerPorCuenta';
 
-/**
- * Obtiene los movimientos de una cuenta específica mediante SOAP.
- * @param {string} cuenta - Número de cuenta
- * @returns {Promise<Array>} - Lista de movimientos [{Cuenta, NroMov, Fecha, Tipo, Accion, Importe}]
- */
 export async function traerMovimientos(cuenta) {
-  const xml = `
-    <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:con="http://controller.eurekabank.edu.ec/">
+  const body = `
+    <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/">
       <soapenv:Header/>
       <soapenv:Body>
-        <con:ObtenerPorCuenta>
-          <cuenta>${cuenta}</cuenta>
-        </con:ObtenerPorCuenta>
+        <tem:ObtenerPorCuenta>
+          <tem:cuenta>${cuenta}</tem:cuenta>
+        </tem:ObtenerPorCuenta>
       </soapenv:Body>
-    </soapenv:Envelope>`;
+    </soapenv:Envelope>
+  `;
 
   try {
-    const res = await fetch(endpoint, {
+    const response = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'text/xml;charset=UTF-8',
-        'SOAPAction': ''
+        'SOAPAction': soapAction
       },
-      body: xml
+      body
     });
 
-    const xmlText = await res.text();
+    const text = await response.text();
+    const parser = new XMLParser({
+      ignoreAttributes: false,
+      attributeNamePrefix: '',
+    });
 
-    const parser = new XMLParser({ ignoreAttributes: false });
-    const parsed = parser.parse(xmlText);
+    const parsed = parser.parse(text);
+    const movimientos = parsed['s:Envelope']['s:Body']['ObtenerPorCuentaResponse']['ObtenerPorCuentaResult']['a:Movimiento'];
 
-    const movimientos = parsed['soapenv:Envelope']?.['soapenv:Body']?.['ns2:ObtenerPorCuentaResponse']?.return;
-
-    if (!movimientos) return [];
-
-    // Normalizamos para devolver siempre un array
+    // Asegura que siempre sea array
     return Array.isArray(movimientos) ? movimientos : [movimientos];
-
-  } catch (err) {
-    console.error('Error al traer movimientos:', err);
+  } catch (error) {
+    console.error('Error al consultar movimientos SOAP:', error);
     return [];
   }
 }

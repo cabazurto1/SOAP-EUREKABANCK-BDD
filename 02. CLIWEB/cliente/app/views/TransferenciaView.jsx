@@ -11,9 +11,8 @@ import {
   Modal,
   TouchableOpacity
 } from 'react-native';
-import { regTransferencia } from '../controllers/OperacionController';
+import { registrarTransferencia } from '../controllers/OperacionController';
 import { useNavigation } from '@react-navigation/native';
-import { XMLParser } from 'fast-xml-parser';
 
 export default function TransferenciaView() {
   const [origen, setOrigen] = useState('');
@@ -23,7 +22,6 @@ export default function TransferenciaView() {
   const [estadoTransaccion, setEstadoTransaccion] = useState(null);
 
   const navigation = useNavigation();
-  const parser = new XMLParser();
 
   const validarCampos = () => {
     if (!origen.trim() || !destino.trim() || !importe.trim()) {
@@ -55,26 +53,13 @@ export default function TransferenciaView() {
     }
 
     try {
-      const res = await regTransferencia(origen.trim(), destino.trim(), importe.trim());
-      const parsed = parser.parse(res);
+      const result = await registrarTransferencia(origen.trim(), destino.trim(), importe.trim());
 
-      const body = parsed['S:Envelope']?.['S:Body'];
-      let resultado = null;
-
-      if (body) {
-        for (const key in body) {
-          const nodo = body[key];
-          if (typeof nodo === 'object' && ('estado' in nodo || 'return' in nodo)) {
-            resultado = nodo.estado ?? nodo.return;
-            break;
-          }
-        }
-      }
-
-      if (String(resultado).toLowerCase() === 'true' || String(resultado) === '1') {
+      if (String(result) === '1') {
+        const fechaHora = new Date().toLocaleString();
         setEstadoTransaccion({
           exito: true,
-          mensaje: `Transferencia realizada con éxito\n\nCuenta origen: ${origen}\nCuenta destino: ${destino}\nImporte: $${importe}`
+          mensaje: `✅ Transferencia exitosa\n\nCuenta origen: ${origen}\nCuenta destino: ${destino}\nMonto: $${parseFloat(importe).toFixed(2)}\nFecha y hora: ${fechaHora}`
         });
         setOrigen('');
         setDestino('');

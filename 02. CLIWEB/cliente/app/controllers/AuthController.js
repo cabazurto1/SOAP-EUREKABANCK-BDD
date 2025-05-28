@@ -1,6 +1,6 @@
 import { XMLParser } from 'fast-xml-parser';
 
-const endpoint = 'http://192.168.18.158:8094/ec.edu.monster.controlador/MovimientoController.svc';
+const endpoint = 'http://192.168.1.15:8094/ec.edu.monster.controlador/MovimientoController.svc';
 
 export async function login(username, password) {
   const soapEnvelope = `
@@ -10,7 +10,7 @@ export async function login(username, password) {
         <tem:Login>
           <tem:username>${username}</tem:username>
           <tem:password>${password}</tem:password>
-        </tem:Login>W
+        </tem:Login>
       </soapenv:Body>
     </soapenv:Envelope>`;
 

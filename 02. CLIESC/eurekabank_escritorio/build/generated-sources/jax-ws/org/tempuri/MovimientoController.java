@@ -17,7 +17,7 @@ import javax.xml.ws.WebServiceFeature;
  * Generated source version: 2.2
  * 
  */
-@WebServiceClient(name = "MovimientoController", targetNamespace = "http://tempuri.org/", wsdlLocation = "http://10.40.16.190:8094/ec.edu.monster.controlador/MovimientoController.svc?wsdl")
+@WebServiceClient(name = "MovimientoController", targetNamespace = "http://tempuri.org/", wsdlLocation = "http://localhost:8094/ec.edu.monster.controlador/MovimientoController.svc?wsdl")
 public class MovimientoController
     extends Service
 {
@@ -30,7 +30,7 @@ public class MovimientoController
         URL url = null;
         WebServiceException e = null;
         try {
-            url = new URL("http://10.40.16.190:8094/ec.edu.monster.controlador/MovimientoController.svc?wsdl");
+            url = new URL("http://localhost:8094/ec.edu.monster.controlador/MovimientoController.svc?wsdl");
         } catch (MalformedURLException ex) {
             e = new WebServiceException(ex);
         }

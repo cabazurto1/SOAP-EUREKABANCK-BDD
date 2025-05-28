@@ -11,9 +11,8 @@ import {
   Modal,
   TouchableOpacity
 } from 'react-native';
-import { regRetiro } from '../controllers/OperacionController';
+import { registrarRetiro } from '../controllers/OperacionController';
 import { useNavigation } from '@react-navigation/native';
-import { XMLParser } from 'fast-xml-parser';
 
 export default function RetiroView() {
   const [cuenta, setCuenta] = useState('');
@@ -22,7 +21,6 @@ export default function RetiroView() {
   const [estadoTransaccion, setEstadoTransaccion] = useState(null);
 
   const navigation = useNavigation();
-  const parser = new XMLParser();
 
   const validarCampos = () => {
     if (!cuenta.trim()) {
@@ -54,26 +52,13 @@ export default function RetiroView() {
     }
 
     try {
-      const res = await regRetiro(cuenta.trim(), importe.trim());
-      const parsed = parser.parse(res);
+      const result = await registrarRetiro(cuenta.trim(), importe.trim());
 
-      const body = parsed['S:Envelope']?.['S:Body'];
-      let resultado = null;
-
-      if (body) {
-        for (const key in body) {
-          const nodo = body[key];
-          if (typeof nodo === 'object' && ('estado' in nodo || 'return' in nodo)) {
-            resultado = nodo.estado ?? nodo.return;
-            break;
-          }
-        }
-      }
-
-      if (String(resultado).toLowerCase() === 'true' || String(resultado) === '1') {
+      if (String(result) === '1') {
+        const fechaHora = new Date().toLocaleString();
         setEstadoTransaccion({
           exito: true,
-          mensaje: `Se retiraron $${importe} de la cuenta ${cuenta} exitosamente.`
+          mensaje: `✅ Retiro exitoso\n\nCuenta: ${cuenta}\nMonto: $${parseFloat(importe).toFixed(2)}\nFecha y hora: ${fechaHora}`
         });
         setCuenta('');
         setImporte('');
@@ -133,7 +118,7 @@ export default function RetiroView() {
         </View>
       </ScrollView>
 
-      {/* Modal de comprobante */}
+      {/* Modal tipo comprobante */}
       <Modal visible={modalVisible} animationType="slide" transparent>
         <View style={styles.modalBackground}>
           <View style={styles.modalBox}>

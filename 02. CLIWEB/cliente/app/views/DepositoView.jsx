@@ -11,9 +11,8 @@ import {
   Modal,
   Pressable
 } from 'react-native';
-import { regDeposito } from '../controllers/OperacionController';
+import { registrarDeposito } from '../controllers/OperacionController';
 import { useNavigation } from '@react-navigation/native';
-import { XMLParser } from 'fast-xml-parser';
 
 export default function DepositoView() {
   const [cuenta, setCuenta] = useState('');
@@ -24,14 +23,14 @@ export default function DepositoView() {
 
   const validarCampos = () => {
     if (!cuenta.trim() || cuenta.trim().length !== 8) {
-      setMensaje('La cuenta debe tener exactamente 8 dígitos.');
+      setMensaje('❌ La cuenta debe tener exactamente 8 dígitos.');
       setModalVisible(true);
       return false;
     }
 
     const monto = parseFloat(importe);
     if (!importe.trim() || isNaN(monto) || monto <= 0) {
-      setMensaje('El importe debe ser un número mayor que cero.');
+      setMensaje('❌ El importe debe ser un número mayor que cero.');
       setModalVisible(true);
       return false;
     }
@@ -43,36 +42,21 @@ export default function DepositoView() {
     if (!validarCampos()) return;
 
     try {
-      const res = await regDeposito(cuenta.trim(), importe.trim());
-      const parser = new XMLParser();
-      const parsed = parser.parse(res);
+      const result = await registrarDeposito(cuenta.trim(), importe.trim());
 
-      const body = parsed['S:Envelope']?.['S:Body'];
-      let resultado = null;
-
-      if (body) {
-        for (const key in body) {
-          const nodo = body[key];
-          if (typeof nodo === 'object' && ('estado' in nodo || 'return' in nodo)) {
-            resultado = nodo.estado ?? nodo.return;
-            break;
-          }
-        }
-      }
-
-      if (String(resultado).toLowerCase() === 'true' || String(resultado) === '1') {
-        setMensaje(`✅ Depósito exitoso\n\nCuenta: ${cuenta}\nMonto: $${parseFloat(importe).toFixed(2)}`);
+      if (result === 1 || String(result).trim() === '1') {
+        const fechaHora = new Date().toLocaleString();
+        setMensaje(`✅ Depósito exitoso\n\nCuenta: ${cuenta}\nMonto: $${parseFloat(importe).toFixed(2)}\nFecha y hora: ${fechaHora}`);
         setCuenta('');
         setImporte('');
       } else {
-        setMensaje('❌ Depósito fallido. Verifica los datos.');
+        throw new Error('❌ El depósito no se pudo completar.');
       }
-
-      setModalVisible(true);
     } catch (error) {
-      setMensaje('⚠️ Error de conexión o datos inválidos.');
-      setModalVisible(true);
+      setMensaje(`❌ Depósito fallido\n\n${error.message || 'Error en el servidor.'}`);
     }
+
+    setModalVisible(true);
   };
 
   return (
@@ -90,7 +74,6 @@ export default function DepositoView() {
           onChangeText={setCuenta}
           maxLength={8}
           keyboardType="number-pad"
-          autoCapitalize="none"
         />
 
         <TextInput
@@ -113,12 +96,8 @@ export default function DepositoView() {
           />
         </View>
 
-        {/* ✅ Modal de comprobante */}
-        <Modal
-          animationType="fade"
-          transparent={true}
-          visible={modalVisible}
-        >
+        {/* ✅ Modal tipo comprobante */}
+        <Modal animationType="fade" transparent={true} visible={modalVisible}>
           <View style={styles.modalOverlay}>
             <View style={styles.modalBox}>
               <Text style={styles.modalText}>{mensaje}</Text>
@@ -134,10 +113,7 @@ export default function DepositoView() {
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: '#e0f7fa'
-  },
+  screen: { flex: 1, backgroundColor: '#e0f7fa' },
   container: {
     flexGrow: 1,
     padding: 24,
@@ -169,8 +145,6 @@ const styles = StyleSheet.create({
     maxWidth: 400,
     marginVertical: 10
   },
-
-  // 🧾 Estilos para el Modal (popup)
   modalOverlay: {
     flex: 1,
     justifyContent: 'center',
