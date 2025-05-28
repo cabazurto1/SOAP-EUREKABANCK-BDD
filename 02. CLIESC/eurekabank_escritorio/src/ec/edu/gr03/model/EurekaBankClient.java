@@ -47,7 +47,11 @@ public class EurekaBankClient {
     public static double ObtenerSaldo(List<Movimiento> movimientos) {
         double saldo = 0;
         for (Movimiento movimiento : movimientos) {
-            saldo += movimiento.getImporte();
+            if(movimiento.getTipo().equals("INGRESO")) {
+                saldo += movimiento.getImporte();
+            } else {
+                saldo -= movimiento.getImporte();
+            }
         }
         return saldo;
     }
